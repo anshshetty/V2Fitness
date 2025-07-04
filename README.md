@@ -262,12 +262,6 @@ Or open in Android Studio and run the project.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the [Wiki](wiki-url) for detailed documentation
-- Review the [FAQ](faq-url) for common questions
 
 ## 🔄 Version History
 
