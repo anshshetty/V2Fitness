@@ -6,13 +6,14 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "template.app.id"
+        applicationId = "com.dev.ansh.v2fitness"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
         versionCode = 1
@@ -25,9 +26,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "ENABLE_TESTING_MENU", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("boolean", "ENABLE_TESTING_MENU", "false")
         }
     }
 
@@ -42,6 +47,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -50,7 +56,7 @@ android {
         }
     }
 
-    namespace = "template"
+    namespace = "v2"
 }
 
 dependencies {
@@ -75,6 +81,19 @@ dependencies {
     implementation(libs.square.okhttp.logging.interceptor)
     implementation(libs.square.retrofit)
     implementation(libs.square.retrofit.converter.moshi)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
+    implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.biometric)
+    implementation("com.google.guava:guava:31.1-android")
 
     debugImplementation(platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.test.manifest)
@@ -84,6 +103,8 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.androidx.test.espresso.core)

@@ -12,16 +12,17 @@ plugins {
     alias(libs.plugins.kotlin.parcelize).apply(false)
     alias(libs.plugins.kotlinter).apply(false)
     alias(libs.plugins.square.sort.dependencies).apply(false)
+    alias(libs.plugins.google.gms.google.services) apply false
 }
 
 apply(from = "buildscripts/githooks.gradle")
-apply(from = "buildscripts/setup.gradle")
 apply(from = "buildscripts/versionsplugin.gradle")
 
 subprojects {
     apply(from = "../buildscripts/detekt.gradle")
 
-    apply(plugin = "com.squareup.sort-dependencies")
+    // Temporarily disable sort-dependencies plugin due to compatibility issues
+    // apply(plugin = "com.squareup.sort-dependencies")
     apply(plugin = "org.jmailen.kotlinter")
 }
 
