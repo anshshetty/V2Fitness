@@ -72,29 +72,18 @@ cd V2Fitness
 1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Enable Firestore Database
 3. Download `google-services.json` and place it in `app/` directory
-4. Configure Firestore security rules:
+4. Configure Firestore security rules using the `firestore.rules` file located
+   at the repository root. The rules define an `isApproved(deviceId)` helper
+   that checks `/approved_devices/{deviceId}` for a document whose
+   `deviceStatus` field equals `"approved"`. All reads and writes in the main
+   collections (`qr_codes`, `attendance`, `daily_usage`) require this helper,
+   ensuring only approved devices can access data.
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // QR Codes collection
-    match /qr_codes/{qrId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Attendance collection
-    match /attendance/{attendanceId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Daily usage collection
-    match /daily_usage/{usageId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
+   Deploy the rules with:
+
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
 
 ### 3. Build and Run
 ```bash

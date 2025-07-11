@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isApproved(deviceId) {
+      return deviceId != null &&
+             exists(/databases/$(database)/documents/approved_devices/$(deviceId)) &&
+             get(/databases/$(database)/documents/approved_devices/$(deviceId)).data.deviceStatus == "approved";
+    }
+
+    match /qr_codes/{qrId} {
+      allow create, update, delete: if isApproved(request.resource.data.deviceId);
+      allow read: if isApproved(resource.data.deviceId);
+    }
+
+    match /attendance/{attendanceId} {
+      allow create, update, delete: if isApproved(request.resource.data.deviceId);
+      allow read: if isApproved(resource.data.deviceId);
+    }
+
+    match /daily_usage/{usageId} {
+      allow create, update, delete: if isApproved(request.resource.data.deviceId);
+      allow read: if isApproved(resource.data.deviceId);
+    }
+
+    match /approved_devices/{deviceId} {
+      allow create, update, delete: if isApproved(deviceId) ||
+                                    !exists(/databases/$(database)/documents/approved_devices/$(deviceId));
+      allow read: if isApproved(deviceId);
+    }
+  }
+}
