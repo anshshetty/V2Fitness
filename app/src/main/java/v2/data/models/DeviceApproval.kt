@@ -4,7 +4,6 @@ import com.google.firebase.Timestamp
 
 data class DeviceApproval(
     val deviceId: String = "",
-    val isApproved: Boolean = false,
     val deviceModel: String = "",
     val deviceManufacturer: String = "",
     val androidVersion: String = "",
@@ -18,4 +17,4 @@ enum class DeviceStatus {
     PENDING,
     APPROVED,
     REJECTED,
-} 
+}

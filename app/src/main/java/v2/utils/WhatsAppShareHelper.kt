@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import java.io.File
 import java.io.FileOutputStream
 
@@ -141,7 +142,7 @@ object WhatsAppShareHelper {
                 if (isAppInstalled(context, packageName)) {
                     try {
                         val sendToIntent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(whatsAppUri)
+                            data = whatsAppUri.toUri()
                             setPackage(packageName)
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }

@@ -13,7 +13,6 @@ object DeviceUtils {
     fun createDeviceApproval(context: Context): DeviceApproval =
         DeviceApproval(
             deviceId = getDeviceId(context),
-            isApproved = false,
             deviceModel = Build.MODEL,
             deviceManufacturer = Build.MANUFACTURER,
             androidVersion = Build.VERSION.RELEASE,
@@ -29,4 +28,4 @@ object DeviceUtils {
             "Android Version" to Build.VERSION.RELEASE,
             "App Version" to "1.0",
         )
-} 
+}

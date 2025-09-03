@@ -122,9 +122,9 @@ fun GenerateQRScreen(
 
                             // Expiry Duration Field
                             OutlinedTextField(
-                                value = uiState.expiryDuration.toString(),
+                                value = if (uiState.expiryDuration > 0) uiState.expiryDuration.toString() else "",
                                 onValueChange = { value ->
-                                    value.toIntOrNull()?.let { viewModel.updateExpiryDuration(it) }
+                                    viewModel.updateExpiryDuration(value.toIntOrNull() ?: 0)
                                 },
                                 label = { Text("Expiry Duration (days)") },
                                 modifier = Modifier.fillMaxWidth(),
@@ -381,4 +381,4 @@ fun GenerateQRScreen(
             }
         },
     )
-} 
+}

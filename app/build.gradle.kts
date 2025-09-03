@@ -25,15 +25,63 @@ android {
         }
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+        create("release") {
+            // For production, you should use a proper keystore
+            // storeFile = file("release.keystore")
+            // storePassword = System.getenv("KEYSTORE_PASSWORD")
+            // keyAlias = System.getenv("KEY_ALIAS")
+            // keyPassword = System.getenv("KEY_PASSWORD")
+            
+            // For now, using debug keystore - replace with proper release keystore
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            resValue("string", "app_name", "V2Fitness Debug")
             buildConfigField("boolean", "ENABLE_TESTING_MENU", "true")
+            buildConfigField("String", "BASE_URL", "\"https://dev-api.v2fitness.com/\"")
+            buildConfigField("boolean", "ENABLE_LOGGING", "true")
+            isMinifyEnabled = false
+            isDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Production build - no suffix
+            resValue("string", "app_name", "V2Fitness")
             buildConfigField("boolean", "ENABLE_TESTING_MENU", "false")
+            buildConfigField("String", "BASE_URL", "\"https://api.v2fitness.com/\"")
+            buildConfigField("boolean", "ENABLE_LOGGING", "false")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
+    }
+
+    // Configure variant output file names
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "V2Fitness-${variant.buildType.name}-${variant.versionName}.apk"
+                output.outputFileName = outputFileName
+            }
     }
 
     compileOptions {
@@ -53,6 +101,10 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Disable baseline profiles to prevent installation issues
+            excludes += "META-INF/com/android/build/gradle/app-metadata.properties"
+            excludes += "META-INF/**.prof"
+            excludes += "META-INF/profileinstaller/**"
         }
     }
 
@@ -125,4 +177,22 @@ tasks.formatKotlinMain {
 
 tasks.lintKotlinMain {
     exclude { it.file.path.contains("build/")}
+}
+
+// Task to list all available build variants
+tasks.register("listVariants") {
+    doLast {
+        println("\n=== Available Build Variants ===")
+        println("Debug Variant:")
+        println("  • debug    -> com.dev.ansh.v2fitness.debug")
+        println("Release Variant:")
+        println("  • release  -> com.dev.ansh.v2fitness")
+        println("\n=== Build Commands ===")
+        println("./gradlew assembleDebug")
+        println("./gradlew assembleRelease")
+        println("\n=== Install Commands ===")
+        println("./gradlew installDebug")
+        println("./gradlew installRelease")
+        println("================================\n")
+    }
 }

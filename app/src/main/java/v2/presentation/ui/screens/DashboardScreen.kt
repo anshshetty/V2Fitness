@@ -54,17 +54,19 @@ fun DashboardScreen(
                                 }
                             }
                             // Cleanup duplicates button
-                            IconButton(
-                                onClick = { viewModel.cleanupDuplicates() },
-                                enabled = !uiState.isCleaningDuplicates,
-                            ) {
-                                if (uiState.isCleaningDuplicates) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp,
-                                    )
-                                } else {
-                                    Icon(Icons.Default.CleaningServices, contentDescription = "Cleanup Duplicates")
+                            if (BuildConfig.ENABLE_TESTING_MENU) {
+                                IconButton(
+                                    onClick = { viewModel.cleanupDuplicates() },
+                                    enabled = !uiState.isCleaningDuplicates,
+                                ) {
+                                    if (uiState.isCleaningDuplicates) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(20.dp),
+                                            strokeWidth = 2.dp,
+                                        )
+                                    } else {
+                                        Icon(Icons.Default.CleaningServices, contentDescription = "Cleanup Duplicates")
+                                    }
                                 }
                             }
                             IconButton(onClick = { viewModel.refreshData() }) {
@@ -287,4 +289,4 @@ fun DashboardScreen(
             }
         },
     )
-} 
+}
