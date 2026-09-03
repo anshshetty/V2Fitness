@@ -9,10 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import v2.BuildConfig
+import v2.R
 import v2.presentation.ui.components.AttendanceListItem
 import v2.presentation.ui.components.DeviceApprovalValidator
 import v2.presentation.viewmodels.DashboardViewModel
@@ -42,7 +44,7 @@ fun DashboardScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "V2 Fitness",
+                                text = stringResource(R.string.org_display_name),
                                 fontWeight = FontWeight.Bold,
                             )
                         },
@@ -172,7 +174,7 @@ fun DashboardScreen(
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Text(
-                                    text = "${uiState.todayCheckIns.size} members checked in today",
+                                    text = "${uiState.todayCheckIns.size} checked in today",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -261,12 +263,12 @@ fun DashboardScreen(
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
-                                        text = "No members checked in today",
+                                        text = "No one checked in today",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                     Text(
-                                        text = "Member check-ins will appear here when they scan QR codes",
+                                        text = "Check-ins will appear here when a QR is scanned",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.outline,
                                     )

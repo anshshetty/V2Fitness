@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">V2Fitness</string>
+    <string name="app_name">QRCheckIn</string>
+    <!-- Shown in the app bar and WhatsApp shares. Change this to your venue or organization name. -->
+    <string name="org_display_name">QRCheckIn</string>
 </resources>

@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec as HmacKeySpec
 object CryptoUtils {
     private const val TRANSFORMATION = "AES/GCM/NoPadding"
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
-    private const val KEY_ALIAS = "GymQRCodeKey"
+    private const val KEY_ALIAS = "AttendanceQRKey"
     private const val GCM_IV_LENGTH = 12
     private const val GCM_TAG_LENGTH = 16
     private const val SALT_LENGTH = 16

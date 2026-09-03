@@ -35,7 +35,7 @@ class DashboardViewModel
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 try {
-                    Log.d("DashboardViewModel", "Loading all users' check-ins for gym staff")
+                    Log.d("DashboardViewModel", "Loading all users' check-ins for staff")
 
                     // Only observe today's check-ins from ALL users - no personal stats needed
                     repository
@@ -47,7 +47,7 @@ class DashboardViewModel
                                 error = "Failed to load check-ins: ${e.message}",
                             )
                         }.collect { checkIns ->
-                            Log.d("DashboardViewModel", "Received ${checkIns.size} check-ins for gym staff")
+                            Log.d("DashboardViewModel", "Received ${checkIns.size} check-ins for staff")
 
                             checkIns.forEach { record ->
                                 Log.d("DashboardViewModel", "Check-in: ${record.name} (${record.mobileNumber}) at ${record.scanTime}")

@@ -13,7 +13,7 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.dev.ansh.v2fitness"
+        applicationId = "app.qrcheckin"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
         versionCode = 1
@@ -51,9 +51,9 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "V2Fitness Debug")
+            resValue("string", "app_name", "QRCheckIn Debug")
             buildConfigField("boolean", "ENABLE_TESTING_MENU", "true")
-            buildConfigField("String", "BASE_URL", "\"https://dev-api.v2fitness.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://dev-api.example.com/\"")
             buildConfigField("boolean", "ENABLE_LOGGING", "true")
             isMinifyEnabled = false
             isDebuggable = true
@@ -61,9 +61,9 @@ android {
         }
         release {
             // Production build - no suffix
-            resValue("string", "app_name", "V2Fitness")
+            resValue("string", "app_name", "QRCheckIn")
             buildConfigField("boolean", "ENABLE_TESTING_MENU", "false")
-            buildConfigField("String", "BASE_URL", "\"https://api.v2fitness.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
             buildConfigField("boolean", "ENABLE_LOGGING", "false")
             isMinifyEnabled = true
             isShrinkResources = true
@@ -79,7 +79,7 @@ android {
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                val outputFileName = "V2Fitness-${variant.buildType.name}-${variant.versionName}.apk"
+                val outputFileName = "QRCheckIn-${variant.buildType.name}-${variant.versionName}.apk"
                 output.outputFileName = outputFileName
             }
     }
@@ -184,9 +184,9 @@ tasks.register("listVariants") {
     doLast {
         println("\n=== Available Build Variants ===")
         println("Debug Variant:")
-        println("  • debug    -> com.dev.ansh.v2fitness.debug")
+        println("  • debug    -> app.qrcheckin.debug")
         println("Release Variant:")
-        println("  • release  -> com.dev.ansh.v2fitness")
+        println("  • release  -> app.qrcheckin")
         println("\n=== Build Commands ===")
         println("./gradlew assembleDebug")
         println("./gradlew assembleRelease")

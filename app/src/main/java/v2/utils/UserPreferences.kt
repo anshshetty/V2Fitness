@@ -13,7 +13,7 @@ class UserPreferences
         @ApplicationContext private val context: Context,
     ) {
         private val prefs: SharedPreferences = context.getSharedPreferences(
-            "v2_fitness_prefs",
+            "qrcheckin_prefs",
             Context.MODE_PRIVATE,
         )
 

@@ -1,293 +1,206 @@
-# Gym Attendance App with QR Code System
+# QRCheckIn
 
-A modern Android application for gym attendance management using customizable QR codes. Members generate time-limited QR codes, and staff scan them to log attendance using mobile numbers as unique identifiers.
+Android **QR attendance / check-in** for places that have no membership or access-control software.
 
-## 🚀 Features
+Staff generate a time-limited QR for a person (name + mobile number), share it on WhatsApp, and scan it at the door to log attendance. Visitors never install the app. No accounts, billing, or POS — just check-in.
 
-### Core Functionality
-- **QR Code Generation**: Create secure, time-limited QR codes with AES-256 encryption
-- **QR Code Scanning**: ML Kit-powered barcode scanning with real-time validation
-- **Attendance Tracking**: Comprehensive attendance logging with Firebase Firestore
-- **Mobile-First Design**: Mobile number as primary unique identifier
-- **Security**: End-to-end encryption with tamper detection
+Works anywhere a front desk and an entrance exist: gyms, yoga and dance studios, sports clubs, classes, coworking spaces, tuition centres, community halls, small events.
 
-### User Experience
-- **Material Design 3**: Modern, beautiful UI with dynamic theming
-- **Dark Mode Support**: Automatic theme switching
-- **Offline Support**: Generate QR codes offline, sync when online
-- **Real-time Updates**: Live data synchronization across devices
-- **Accessibility**: Full accessibility compliance with screen readers
+This repo is a **modern Android starter** (Kotlin, Jetpack Compose, MVVM, Hilt, Firebase, CameraX, ML Kit) you can fork, rebrand, and point at your own Firebase project.
 
-### Advanced Features
-- **Rate Limiting**: Maximum 5 QR codes per hour per mobile number
-- **Usage Analytics**: Track attendance patterns and statistics
-- **QR Code Management**: Extend, disable, and share QR codes
-- **Daily Usage Tracking**: Monitor daily scan counts and patterns
+---
 
-## 🏗️ Architecture
+## Who this is for
 
-### Tech Stack
-- **Language**: Kotlin
-- **Architecture**: MVVM with Repository pattern
-- **UI Framework**: Jetpack Compose
-- **Database**: Firebase Firestore
-- **QR Processing**: ML Kit Barcode Scanning API + ZXing
-- **Security**: AES-256-GCM encryption
-- **Dependencies**: Hilt for DI, Coroutines, Navigation Component
+- Independent venues still using paper registers, WhatsApp photos, or verbal check-in
+- Developers looking for a Compose + Firestore attendance app to extend
 
-### Project Structure
+Staff phones only. Device approval in Firestore is the access gate: a device must be approved before it can generate or scan codes.
+
+This is **not** school roll-call (periods, classes) or employee time-tracking (payroll, shifts). It is door check-in with a QR pass.
+
+---
+
+## How it works
+
+1. A staff device registers itself (`approved_devices` in Firestore, status `pending`).
+2. An admin sets that document’s `deviceStatus` to `approved`.
+3. Staff optionally enable biometrics on that device.
+4. **Generate QR** — name, 10-digit mobile, expiry in days. Payload is AES-GCM encrypted.
+5. Share the QR to the visitor on WhatsApp.
+6. **Scan QR** at the entrance — ML Kit validates expiry, disable flag, and daily use, then writes an attendance record.
+
+---
+
+## Stack
+
+| Layer | Choice |
+| --- | --- |
+| Language / UI | Kotlin, Jetpack Compose, Material 3 |
+| Architecture | MVVM, use cases, repository interfaces |
+| DI | Hilt |
+| Backend | Firebase Firestore |
+| Scan / generate | CameraX + ML Kit Barcode, ZXing |
+| Security | AES-GCM QR payload, HMAC, biometric lock, device approval |
+
 ```
-app/
-├── data/
-│   ├── models/          # Data classes (QRCodeModel, AttendanceRecord, etc.)
-│   └── repository/      # Repository implementations
-├── domain/
-│   ├── repository/      # Repository interfaces
-│   └── usecases/        # Business logic (GenerateQRCodeUseCase, etc.)
-├── presentation/
-│   ├── ui/
-│   │   ├── screens/     # Compose screens
-│   │   └── components/  # Reusable UI components
-│   ├── viewmodels/      # ViewModels
-│   └── navigation/      # Navigation setup
-├── utils/               # Utility classes (CryptoUtils, QRCodeGenerator)
-└── di/                  # Dependency injection modules
+app/src/main/java/v2/
+├── data/           models + Firestore repositories
+├── domain/         repository contracts + use cases
+├── presentation/   Compose screens, ViewModels, navigation
+├── di/             Hilt modules
+├── theme/          colors, typography, Material 3 theme
+└── utils/          crypto, QR bitmap, device id, WhatsApp share
 ```
 
-## 🛠️ Setup Instructions
+---
 
-### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17
-- Android SDK API 35
-- Firebase project with Firestore enabled
+## Run locally
 
-### 1. Clone the Repository
+**Needs:** Android Studio (Hedgehog+), JDK 17, SDK 35, a Firebase project with Firestore.
+
 ```bash
-git clone <repository-url>
-cd V2Fitness
+git clone https://github.com/anshshetty/QRCheckIn.git
+cd QRCheckIn
 ```
 
-### 2. Firebase Setup
-1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Firestore Database
-3. Download `google-services.json` and place it in `app/` directory
-4. Configure Firestore security rules:
+1. The repo includes a dummy `app/google-services.json` so Gradle and CI can compile. It does not talk to a real Firebase project.
+2. For a live venue: create a Firebase project → add Android apps for `app.qrcheckin` and `app.qrcheckin.debug` (debug uses an `applicationId` suffix) → replace `app/google-services.json` with the file from the console. Do not commit a production file if it contains live keys you want private.
+3. Enable **Cloud Firestore**. This app does **not** sign in with Firebase Auth, so rules must not require `request.auth`. Starter rules (tighten before you go live):
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // QR Codes collection
-    match /qr_codes/{qrId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Attendance collection
-    match /attendance/{attendanceId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Daily usage collection
-    match /daily_usage/{usageId} {
-      allow read, write: if request.auth != null;
-    }
+    match /qr_codes/{id} { allow read, write: if true; }
+    match /attendance/{id} { allow read, write: if true; }
+    match /daily_usage/{id} { allow read, write: if true; }
+    match /approved_devices/{id} { allow read, write: if true; }
   }
 }
 ```
 
-### 3. Build and Run
+4. Create indexes if the console prompts you after the first queries.
+
 ```bash
 ./gradlew assembleDebug
+./gradlew testDebugUnitTest
 ```
 
-Or open in Android Studio and run the project.
+Or open the project in Android Studio and Run.
 
-## 📱 App Screens
+### Approve the first staff phone
 
-### 1. Dashboard Screen
-- Two primary action buttons (Generate QR, Scan QR)
-- Quick stats display (Active QRs, Today's scans)
-- Recent QR codes list with status indicators
+After install, the app registers the device and waits.
 
-### 2. Generate QR Screen
-- Form inputs: Name, Mobile Number, Expiry Duration
-- Quick duration selection (1 Hour, 4 Hours, 1 Day)
-- Real-time QR code generation and display
-- Save and share functionality
+In Firestore → `approved_devices` → the device document → set `deviceStatus` to `"approved"` (`pending` / `approved` / `rejected`). Open the app again.
 
-### 3. QR Scanner Screen
-- Camera viewfinder with overlay guide
-- Real-time scanning feedback
-- Flashlight toggle
-- Manual input option for damaged QR codes
+---
 
-### 4. QR Management Screen
-- List of all user's QR codes
-- Status badges (Active, Used, Expired, Disabled)
-- Actions: Extend, Disable, Share
+## Use this at your venue
 
-## 🔒 Security Features
+You do not need to rewrite the attendance flow. Change identity, backend, and copy.
 
-### Encryption
-- **AES-256-GCM**: Industry-standard encryption for QR payloads
-- **Unique Salt**: Each QR code uses a unique salt for encryption
-- **HMAC**: Tamper detection using HMAC-SHA256
+### 1. Firebase (required)
 
-### QR Payload Structure
+Each venue should have **its own Firebase project**. Replace the dummy `app/google-services.json` with that project's file so visitor QRs and attendance never mix with another site. Include both the release package and the `.debug` variant.
+
+### 2. Application id (required for Play Store / side-by-side install)
+
+In `app/build.gradle.kts`:
+
+- `applicationId` (today: `app.qrcheckin`)
+- debug/release `app_name` `resValue`s
+- APK `outputFileName` if you care about the file name
+
+Re-download `google-services.json` for the new package name.
+
+Kotlin package `v2` / `namespace = "v2"` can stay. Changing it is optional and touches every source file.
+
+### 3. Branding (required so visitors see your name)
+
+| What | Where |
+| --- | --- |
+| Launcher / system name | `app/src/main/res/values/strings.xml` → `app_name`, and the `resValue("string", "app_name", ...)` entries in `app/build.gradle.kts` |
+| In-app title + WhatsApp org name | `org_display_name` in `strings.xml` |
+| WhatsApp QR message body | `QrShareMessage.build()` in `app/src/main/java/v2/utils/QrShareMessage.kt` |
+| Launcher icon | `app/src/main/res/mipmap-*` |
+| Theme colors | `app/src/main/java/v2/theme/Color.kt` (Material 3 also uses dynamic color on Android 12+) |
+
+### 4. Staff device policy
+
+Treat `approved_devices` as your allowlist. Only venue phones should be `approved`. Reject lost devices by setting `deviceStatus` to `"rejected"`.
+
+### 5. Common extensions (optional)
+
+| Change | Where |
+| --- | --- |
+| 10-digit (India) mobile validation | `GenerateQRCodeUseCase` and `QRCodeRepositoryImpl` |
+| Max 5 active QRs per mobile | `GenerateQRCodeUseCase` |
+| Expiry is in **days** (`QRCodeModel.expiryDuration`) | generate-QR UI + model |
+| Firestore collection names | `QRCodeRepositoryImpl`, `DeviceApprovalRepositoryImpl` |
+| Test seed locations | `DataSeeder` (debug testing menu only) |
+
+### 6. Release signing
+
+`app/build.gradle.kts` currently signs release with the debug keystore. Replace `signingConfigs.release` with your own keystore and env-based passwords before shipping.
+
+Production hardening: R8 is already on for release; add Firebase App Check, lock Firestore rules, and consider staff Firebase Auth if you outgrow device-approval-only access.
+
+---
+
+## App surfaces
+
+- **Dashboard** — generate, scan, today’s check-ins, recent QRs
+- **Generate QR** — visitor form, bitmap, save, WhatsApp
+- **Scan QR** — camera, torch, validation feedback
+- **QR list** — extend, disable, share
+- **Device check / waiting** — registration until an admin approves
+- **Biometric setup / unlock** — optional lock on an approved device
+- **Testing menu** — debug builds only (`ENABLE_TESTING_MENU`)
+
+---
+
+## Data
+
+### QR payload (encrypted in the code)
+
 ```json
 {
-  "name": "John Doe",
-  "mobileNumber": "1234567890",
-  "timestamp": "2024-01-15T10:30:00.000Z",
-  "expiryDuration": 60,
-  "qrId": "uuid-string",
+  "name": "Jane Visitor",
+  "mobileNumber": "9876543210",
+  "timestamp": "2026-01-15T10:30:00.000Z",
+  "expiryDuration": 30,
+  "qrId": "uuid",
   "version": "1.0"
 }
 ```
 
-### Validation Rules
-- Name: Minimum 2 characters
-- Mobile Number: Exactly 10 digits
-- Expiry Duration: 1 minute to 7 days
-- Rate Limiting: Maximum 5 active QR codes per mobile number
+`expiryDuration` is **days**, not minutes.
 
-## 🗄️ Database Schema
+### Collections
 
-### Firestore Collections
+**`qr_codes/{qrId}`** — `name`, `mobileNumber`, `createdAt`, `expiryDuration`, `status`, `usageCount`, `lastUsedAt`, `encryptedPayload`, `salt`, `deviceId`
 
-#### qr_codes/
-```javascript
-{
-  qrId: string,
-  name: string,
-  mobileNumber: string,
-  createdAt: timestamp,
-  expiryDuration: number, // minutes
-  isDisabled: boolean,
-  usageCount: number,
-  lastUsedAt: timestamp,
-  encryptedPayload: string,
-  salt: string
-}
-```
+**`attendance/{id}`** — `mobileNumber`, `name`, `scanTime`, `qrId`, `deviceId`, `location`, `scannerInfo`
 
-#### attendance/
-```javascript
-{
-  id: string,
-  mobileNumber: string,
-  name: string,
-  scanTime: timestamp,
-  qrId: string,
-  deviceId: string,
-  location: string,
-  scannerInfo: string
-}
-```
+**`daily_usage/{YYYY-MM-DD-mobileNumber}`** — `date`, `mobileNumber`, `usedQRIds`, `scanCount`
 
-#### daily_usage/
-```javascript
-{
-  id: string, // format: "YYYY-MM-DD-mobileNumber"
-  date: string, // YYYY-MM-DD
-  mobileNumber: string,
-  usedQRIds: array,
-  scanCount: number
-}
-```
-
-## 🧪 Testing
-
-### Unit Tests
-```bash
-./gradlew testDebugUnitTest
-```
-
-### Integration Tests
-```bash
-./gradlew connectedDebugAndroidTest
-```
-
-### Test Coverage
-- QR payload encryption/decryption
-- Expiry validation logic
-- Business rules validation
-- Repository implementations
-- UI component testing
-
-## 🚀 Deployment
-
-### Debug Build
-```bash
-./gradlew assembleDebug
-```
-
-### Release Build
-```bash
-./gradlew assembleRelease
-```
-
-### Security Checklist
-- [ ] Obfuscate encryption keys
-- [ ] Enable ProGuard/R8
-- [ ] Remove debug logs
-- [ ] Validate Firebase security rules
-- [ ] Test on various devices and Android versions
-
-## 📊 Performance Considerations
-
-### Optimizations
-- QR code generation performance optimization
-- Camera preview optimization
-- Firestore query optimization with proper indexing
-- Image caching for QR codes
-- Background task management with WorkManager
-
-### Memory Management
-- Proper camera resource cleanup
-- Efficient bitmap handling for QR codes
-- Coroutine scope management
-- Lifecycle-aware components
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the [Wiki](wiki-url) for detailed documentation
-- Review the [FAQ](faq-url) for common questions
-
-## 🔄 Version History
-
-### v1.0.0 (Current)
-- Initial release with core QR generation and scanning
-- Firebase Firestore integration
-- Material Design 3 UI
-- AES-256 encryption
-- Basic attendance tracking
-
-### Planned Features
-- [ ] Advanced analytics dashboard
-- [ ] Bulk QR code generation
-- [ ] Export attendance reports
-- [ ] Push notifications
-- [ ] Multi-gym support
-- [ ] Admin panel
-- [ ] API for third-party integrations
+**`approved_devices/{deviceId}`** — `deviceModel`, `deviceManufacturer`, `androidVersion`, `appVersion`, `registrationDate`, `lastActiveDate`, `deviceStatus`
 
 ---
 
-**Built with ❤️ using modern Android development practices**
+## Tests
 
+```bash
+./gradlew testDebugUnitTest
+./gradlew connectedDebugAndroidTest
+```
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+Fork it, set `org_display_name` to your venue, point it at your Firebase project.

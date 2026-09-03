@@ -144,7 +144,7 @@ private fun BiometricSetupContent(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = "Enhanced security for your fitness data",
+                            text = "Enhanced security for attendance data",
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
@@ -176,7 +176,7 @@ private fun BiometricSetupContent(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = "Secure gym access with QR codes",
+                            text = "Secure check-in with QR codes",
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }

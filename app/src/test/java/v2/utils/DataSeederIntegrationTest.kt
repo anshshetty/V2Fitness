@@ -49,22 +49,22 @@ class DataSeederIntegrationTest {
     }
 
     @Test
-    fun `should have valid gym locations`() {
+    fun `should have valid venue locations`() {
         // Given
-        val gymLocations = listOf(
-            "Main Gym Floor",
-            "Cardio Section",
-            "Weight Training Area",
-            "Yoga Studio",
-            "Spinning Room",
-            "Pool Area",
-            "Locker Room",
+        val venueLocations = listOf(
+            "Main Entrance",
             "Reception",
+            "Studio",
+            "Training Floor",
+            "Classroom",
+            "Locker Room",
+            "Cafe",
+            "Parking",
         )
 
         // Then
-        assertTrue("Should have at least 8 locations", gymLocations.size >= 8)
-        gymLocations.forEach { location ->
+        assertTrue("Should have at least 8 locations", venueLocations.size >= 8)
+        venueLocations.forEach { location ->
             assertTrue("Location should not be empty", location.isNotBlank())
             assertTrue("Location should be at least 4 characters", location.length >= 4)
         }

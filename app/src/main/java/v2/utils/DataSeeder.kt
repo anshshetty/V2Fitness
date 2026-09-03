@@ -66,16 +66,14 @@ class DataSeeder
                 "5555666777",
             )
 
-            private val gymLocations = listOf(
-                "Main Gym Floor",
-                "Cardio Section",
-                "Weight Training Area",
-                "Yoga Studio",
-                "Spinning Room",
-                "Pool Area",
-                "Locker Room",
+            private val venueLocations = listOf(
+                "Main Entrance",
                 "Reception",
-                "Cafe Area",
+                "Studio",
+                "Training Floor",
+                "Classroom",
+                "Locker Room",
+                "Cafe",
                 "Parking",
             )
         }
@@ -148,7 +146,7 @@ class DataSeeder
                 for (i in 0 until 15) {
                     val name = dummyNames[i % dummyNames.size]
                     val mobileNumber = dummyMobileNumbers[i % dummyMobileNumbers.size]
-                    val location = gymLocations[i % gymLocations.size]
+                    val location = venueLocations[i % venueLocations.size]
 
                     // Create attendance records for different times (today and yesterday)
                     val scanTime = when (i % 3) {

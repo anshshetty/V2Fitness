@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import v2.data.models.QRCodeModel
 import v2.domain.usecases.GenerateQRCodeUseCase
+import v2.R
 import v2.utils.QRCodeGenerator
+import v2.utils.QrShareMessage
 import v2.utils.UserPreferences
 import v2.utils.WhatsAppShareHelper
 import java.io.File
@@ -314,7 +316,7 @@ class GenerateQRViewModel
                     type = "image/png"
                     putExtra(Intent.EXTRA_STREAM, contentUri)
                     putExtra(Intent.EXTRA_TEXT, shareText)
-                    putExtra(Intent.EXTRA_SUBJECT, "Gym QR Code - ${qrCode.name}")
+                    putExtra(Intent.EXTRA_SUBJECT, "Check-in QR - ${qrCode.name}")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
@@ -351,13 +353,15 @@ class GenerateQRViewModel
             bitmap: Bitmap,
         ) {
             try {
-                // Create WhatsApp share text with V2 Fitness welcome message
-                val welcomeMessage = "Welcome to V2 Fitness! 💪\n\nHere's your gym QR code for ${qrCode.name}.\n\nYour membership details:\n• Mobile: ${qrCode.mobileNumber}\n• Valid until: ${SimpleDateFormat(
-                    "MMM dd, yyyy",
-                    Locale.getDefault(),
-                ).format(
-                    Date(qrCode.createdAt.toDate().time + (qrCode.expiryDuration * 24 * 60 * 60 * 1000L)),
-                )}\n\nPlease show this QR code at the gym entrance. We look forward to helping you achieve your fitness goals!"
+                val welcomeMessage = QrShareMessage.build(
+                    orgName = context.getString(R.string.org_display_name),
+                    memberName = qrCode.name,
+                    mobileNumber = qrCode.mobileNumber,
+                    validUntil = QrShareMessage.formatValidUntil(
+                        createdAtMillis = qrCode.createdAt.toDate().time,
+                        expiryDurationDays = qrCode.expiryDuration,
+                    ),
+                )
 
                 // Use the specialized WhatsApp helper
                 val success = WhatsAppShareHelper.shareQRCodeWithMessage(

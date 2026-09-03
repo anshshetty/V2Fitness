@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "v2"
+rootProject.name = "QRCheckIn"
 include(":app")
